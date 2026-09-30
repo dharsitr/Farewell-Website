@@ -172,28 +172,7 @@ export function FinalFarewellSection({
           Through every challenge, every shared dream, and every unforgettable celebration, you left an imprint that time will never erase. Go conquer the world — your college family will always be cheering for you.
         </p>
 
-        {/* Interactive Navigation Actions */}
-        <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-3.5">
-          <button
-            type="button"
-            onClick={scrollToTop}
-            className="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-xs sm:text-sm font-semibold tracking-wide text-black bg-gradient-to-r from-[#FDE047] via-[#F59E0B] to-[#D97706] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_25px_rgba(245,158,11,0.35)] cursor-pointer"
-          >
-            <ArrowUp className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
-            <span>Back to Top</span>
-          </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = "/?stage=dormant";
-            }}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs sm:text-sm font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white backdrop-blur-md active:scale-95 transition-all cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-amber-300" />
-            <span>Replay Opening</span>
-          </button>
-        </div>
       </motion.div>
 
       {/* Venue Map Section */}
@@ -298,6 +277,36 @@ export function FinalFarewellSection({
             </a>
           </div>
         </div>
+      </motion.div>
+
+      {/* Navigation Buttons — below the map */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+        className="relative z-20 mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-3.5"
+      >
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-xs sm:text-sm font-semibold tracking-wide text-black bg-gradient-to-r from-[#FDE047] via-[#F59E0B] to-[#D97706] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_25px_rgba(245,158,11,0.35)] cursor-pointer"
+        >
+          <ArrowUp className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
+          <span>Back to Top</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: "instant" });
+            window.dispatchEvent(new CustomEvent("replay-intro"));
+          }}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs sm:text-sm font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white backdrop-blur-md active:scale-95 transition-all cursor-pointer"
+        >
+          <RotateCcw className="w-3.5 h-3.5 text-amber-300" />
+          <span>Replay Opening</span>
+        </button>
       </motion.div>
 
       {/* Smooth Final Fade / Bottom Vignette to Black */}

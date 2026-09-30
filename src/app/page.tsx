@@ -13,7 +13,7 @@ export default async function Home({ searchParams }: PageProps) {
 
   const initialStage = (
     stage &&
-    ["dormant", "emblem", "burst", "revealed", "transition"].includes(stage)
+    ["emblem", "burst", "revealed", "transition"].includes(stage)
       ? stage
       : undefined
   ) as IntroState | undefined;

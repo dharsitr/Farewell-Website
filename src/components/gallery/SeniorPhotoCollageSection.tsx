@@ -40,12 +40,7 @@ export function SeniorPhotoCollageSection({
   const touchStartX = useRef<number | null>(null);
 
   const [activeIdx, setActiveIdx] = useState(0);
-  const [prevIdx, setPrevIdx] = useState<number | null>(null);
   const [direction, setDirection] = useState<"next" | "prev">("next");
-  const [transitioning, setTransitioning] = useState(false);
-  const [animationProgress, setAnimationProgress] = useState(1); // 0..1
-  const animFrameRef = useRef<number | null>(null);
-  const animStartRef = useRef<number | null>(null);
 
   const [isMobile, setIsMobile] = useState(false);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
@@ -77,42 +72,11 @@ export function SeniorPhotoCollageSection({
     };
   }, []);
 
-  // Animate transition progress 0 → 1 over TRANSITION_DURATION_MS
-  const startTransitionAnimation = useCallback(() => {
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    animStartRef.current = null;
-
-    const duration = isReducedMotion ? 0 : TRANSITION_DURATION_MS;
-
-    const step = (timestamp: number) => {
-      if (!animStartRef.current) animStartRef.current = timestamp;
-      const elapsed = timestamp - animStartRef.current;
-      const progress = Math.min(1, elapsed / (duration || 1));
-      setAnimationProgress(progress);
-
-      if (progress < 1) {
-        animFrameRef.current = requestAnimationFrame(step);
-      } else {
-        // Transition complete — clear prevIdx
-        setPrevIdx(null);
-        setTransitioning(false);
-        setAnimationProgress(1);
-      }
-    };
-
-    setAnimationProgress(0);
-    animFrameRef.current = requestAnimationFrame(step);
-  }, [isReducedMotion]);
-
-  // Navigate to a specific index
+  // Navigate — Framer Motion handles the animation, no rAF needed
   const goTo = useCallback((newIdx: number, dir: "next" | "prev") => {
-    if (transitioning) return;
-    setTransitioning(true);
     setDirection(dir);
-    setPrevIdx(activeIdx);
     setActiveIdx(newIdx);
-    startTransitionAnimation();
-  }, [activeIdx, transitioning, startTransitionAnimation]);
+  }, []);
 
   const goNext = useCallback(() => {
     if (activeIdx < totalPhotos - 1) {
@@ -201,10 +165,9 @@ export function SeniorPhotoCollageSection({
   }, [activeIdx, totalPhotos]);
 
   // Progress percentage (0 to 100%)
-  const progressPercent = Math.min(100, Math.max(0, ((activeIdx) / (totalPhotos - 1)) * 100));
+  const progressPercent = Math.min(100, Math.max(0, (activeIdx / (totalPhotos - 1)) * 100));
 
   const activePhoto = PHOTOS[activeIdx];
-  const prevPhoto = prevIdx !== null ? PHOTOS[prevIdx] : null;
 
   return (
     <section
@@ -253,37 +216,20 @@ export function SeniorPhotoCollageSection({
         </div>
       </div>
 
-      {/* Carousel Canvas */}
+      {/* Carousel Canvas — AnimatePresence for GPU-smooth cross-slides */}
       <div className="relative z-20 w-full h-full flex items-center justify-center overflow-hidden">
-        {/* Previous card (exiting) */}
-        {prevPhoto && (
-          <CinematicCarouselCard
-            key={`prev-${prevIdx}`}
-            photo={prevPhoto}
-            photoIndex={prevIdx!}
-            enterProgress={1}
-            exitProgress={animationProgress}
-            direction={direction}
-            isMobile={isMobile}
-            isReducedMotion={isReducedMotion}
-            isActive={false}
-          />
-        )}
-
-        {/* Active card (entering → settled) */}
-        {activePhoto && !showClimax && (
-          <CinematicCarouselCard
-            key={`active-${activeIdx}`}
-            photo={activePhoto}
-            photoIndex={activeIdx}
-            enterProgress={transitioning ? animationProgress : 1}
-            exitProgress={0}
-            direction={direction}
-            isMobile={isMobile}
-            isReducedMotion={isReducedMotion}
-            isActive={!transitioning || animationProgress >= 1}
-          />
-        )}
+        <AnimatePresence custom={direction} mode="sync">
+          {activePhoto && !showClimax && (
+            <CinematicCarouselCard
+              key={activeIdx}
+              photo={activePhoto}
+              photoIndex={activeIdx}
+              direction={direction}
+              isMobile={isMobile}
+              isReducedMotion={isReducedMotion}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Hidden Preloader */}

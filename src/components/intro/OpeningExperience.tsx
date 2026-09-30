@@ -16,9 +16,10 @@ interface OpeningExperienceProps {
 }
 
 export function OpeningExperience({ initialStage }: OpeningExperienceProps) {
-  const { state, isReducedMotion, replay, skipToTransition } = useIntroSequence({
-    initialStage,
-  });
+  const { state, sequenceKey, isReducedMotion, replay, skipToTransition } =
+    useIntroSequence({
+      initialStage,
+    });
 
   return (
     <section className="relative min-h-[100dvh] w-full overflow-hidden select-none bg-[#02040a] text-white flex flex-col items-center justify-center px-4">
@@ -50,7 +51,7 @@ export function OpeningExperience({ initialStage }: OpeningExperienceProps) {
           {/* Phase 1.1: Glowing graduation cap celebration emblem */}
           {(state === "emblem" || state === "burst") && (
             <GlowingEmblem
-              key="emblem"
+              key={`emblem-${sequenceKey}`}
               state={state}
               isReducedMotion={isReducedMotion}
             />
@@ -58,7 +59,10 @@ export function OpeningExperience({ initialStage }: OpeningExperienceProps) {
 
           {/* Phase 1.2 & 1.3: Revealed title and Transition stage */}
           {(state === "revealed" || state === "transition") && (
-            <div key="revealed-content" className="flex flex-col items-center justify-center w-full">
+            <div
+              key={`revealed-content-${sequenceKey}`}
+              className="flex flex-col items-center justify-center w-full"
+            >
               <CinematicTitle
                 state={state}
                 isReducedMotion={isReducedMotion}
