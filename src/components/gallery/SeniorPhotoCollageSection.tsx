@@ -22,8 +22,8 @@ import {
  * - Keyboard ← → navigation.
  * ============================================================================
  */
-const AUTO_ADVANCE_MS = 5000; // Auto-advance delay in ms
-const TRANSITION_DURATION_MS = 700; // Animation duration in ms
+const AUTO_ADVANCE_MS = 3000; // Auto-advance delay in ms
+const TRANSITION_DURATION_MS = 420; // Animation duration in ms
 
 interface SeniorPhotoCollageSectionProps {
   id?: string;
