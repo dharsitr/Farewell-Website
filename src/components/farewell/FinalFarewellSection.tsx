@@ -340,8 +340,8 @@ export function FinalFarewellSection({
       <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-8 z-30 pointer-events-auto">
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-amber-400/25 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.6)] text-slate-400 hover:text-amber-200 hover:border-amber-400/50 transition-all duration-300">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-          <span className="text-[10px] sm:text-xs tracking-wider font-medium text-slate-300">
-            Done by <span className="text-amber-300 font-semibold tracking-wide">Dharsit R</span>
+          <span className="text-[10px] sm:text-xs tracking-wider font-semibold text-amber-300">
+            SS (BATCH 24)
           </span>
         </div>
       </div>
