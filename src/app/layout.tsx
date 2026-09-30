@@ -24,9 +24,18 @@ export const metadata: Metadata = {
   title: "Happy Farewell Seniors | Class of 2026",
   description:
     "A cinematic farewell celebration honoring our seniors. Step into the memories, milestones, and heartfelt celebrations.",
+  icons: {
+    icon: [
+      { url: "/icon.png" },
+      { url: "/favicon.ico" },
+    ],
+    apple: "/apple-icon.png",
+    shortcut: "/favicon.ico",
+  },
   openGraph: {
     title: "Happy Farewell Seniors | Class of 2026",
     description: "A cinematic farewell celebration honoring our seniors.",
+    images: [{ url: "/college-logo.png" }],
     type: "website",
   },
 };

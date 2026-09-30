@@ -22,8 +22,8 @@ import {
  * - Keyboard ← → navigation.
  * ============================================================================
  */
-const AUTO_ADVANCE_MS = 3000; // Auto-advance delay in ms
-const TRANSITION_DURATION_MS = 420; // Animation duration in ms
+const AUTO_ADVANCE_MS = 4000; // Auto-advance delay in ms (4 seconds per photo)
+const TRANSITION_DURATION_MS = 2000; // Animation duration in ms (2 seconds transition)
 
 // Limit the slideshow to 20 photos
 const PHOTOS = SENIOR_PHOTOS.slice(0, 20);
@@ -191,7 +191,7 @@ export function SeniorPhotoCollageSection({
             suppressHydrationWarning
             style={{
               width: `${isMounted ? progressPercent : 0}%`,
-              transition: "width 500ms ease",
+              transition: "width 2000ms ease",
             }}
             className="h-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 shadow-[0_0_12px_rgba(251,191,36,0.6)]"
           />

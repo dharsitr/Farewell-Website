@@ -51,7 +51,7 @@ export const CinematicCarouselCard = memo(function CinematicCarouselCard({
 
   const transition = isReducedMotion
     ? { duration: 0 }
-    : { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] };
+    : { duration: 2.0, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] };
 
   return (
     <motion.div
@@ -105,7 +105,7 @@ export const CinematicCarouselCard = memo(function CinematicCarouselCard({
           transition={
             isReducedMotion
               ? { duration: 0 }
-              : { delay: 0.38, duration: 0.4, ease: "easeOut" }
+              : { delay: 0.5, duration: 0.8, ease: "easeOut" }
           }
           className="absolute inset-x-0 bottom-0 z-30 px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-t from-[#02040a] via-[#02040a]/95 to-transparent flex flex-col items-center text-center pointer-events-none"
         >

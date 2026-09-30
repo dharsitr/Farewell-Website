@@ -209,7 +209,7 @@ export function FinalFarewellSection({
             <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-[#03050c]/80 to-transparent z-10 pointer-events-none" />
             <iframe
               title="JR Hall Location Map"
-              src="https://maps.google.com/maps?q=11.0402477,77.0308503&z=17&output=embed&hl=en"
+              src="https://maps.google.com/maps?q=JR+HALL,+11.0402477,77.0308503&z=17&output=embed&hl=en"
               width="100%"
               height="100%"
               style={{ border: 0, filter: "invert(90%) hue-rotate(180deg) saturate(0.8) brightness(0.85)" }}
@@ -228,7 +228,7 @@ export function FinalFarewellSection({
               </p>
             </div>
             <a
-              href="https://www.google.com/maps/place/JR+HALL/@11.0402477,77.0282754,17z"
+              href="https://www.google.com/maps/dir/?api=1&destination=JR+HALL,+11.0402477,77.0308503"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-black cursor-pointer whitespace-nowrap overflow-hidden
@@ -314,6 +314,16 @@ export function FinalFarewellSection({
 
       {/* Bottom Star & Footer Note */}
       <div className="relative z-20 mt-16 sm:mt-24 flex flex-col items-center text-center">
+        <div className="mb-3.5 relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-amber-400/50 via-yellow-200/30 to-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+          <img
+            src="/college-logo.png"
+            alt="Coimbatore Institute of Technology"
+            className="w-full h-full object-contain rounded-full bg-white/95 p-0.5"
+          />
+        </div>
+        <p className="text-xs sm:text-sm tracking-widest uppercase font-semibold text-amber-200/90 mb-1.5">
+          Coimbatore Institute of Technology
+        </p>
         <div className="flex items-center gap-2 text-amber-400/50 mb-2">
           <Star className="w-3 h-3 fill-amber-400/40" />
           <span className="w-8 h-px bg-amber-400/30" />
