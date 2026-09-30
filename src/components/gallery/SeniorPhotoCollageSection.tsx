@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { SENIOR_PHOTOS } from "@/data/photos";
 import { CinematicCarouselCard } from "./CinematicCarouselCard";
 import {
@@ -15,18 +15,15 @@ import {
 
 /**
  * ============================================================================
- * CAROUSEL CONFIGURATION & TIMING PACING
- * Configured strictly per requirements:
- * - PHOTO_SCROLL_DISTANCE = 900–1400px (slow, controlled scroll pacing)
- * - HOLD_RANGE = large enough so each image and caption remain readable
- * - TRANSITION_RANGE = smooth spring-eased transition between photos
- * - 100% scroll-driven without setTimeout timers
+ * HORIZONTAL SLIDESHOW CONFIGURATION
+ * - No scroll-driven navigation. Cards slide left/right between photos.
+ * - Auto-advance every AUTO_ADVANCE_MS ms; paused on user interaction.
+ * - Touch/swipe support for mobile.
+ * - Keyboard ← → navigation.
  * ============================================================================
  */
-export const PHOTO_SCROLL_DISTANCE = 1100; // Px of vertical scroll required per photo
-export const HOLD_RANGE = 0.70; // 70% hold (770px), 30% transition (330px)
-export const TRANSITION_RANGE = 0.30; // 1 - HOLD_RANGE
-export const EXIT_BUFFER_PX = 1300; // Px buffer after final photo for climax tribute
+const AUTO_ADVANCE_MS = 5000; // Auto-advance delay in ms
+const TRANSITION_DURATION_MS = 700; // Animation duration in ms
 
 interface SeniorPhotoCollageSectionProps {
   id?: string;
@@ -36,35 +33,39 @@ export function SeniorPhotoCollageSection({
   id = "senior-memories",
 }: SeniorPhotoCollageSectionProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
-  const [floatIndex, setFloatIndex] = useState(0);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [prevIdx, setPrevIdx] = useState<number | null>(null);
+  const [direction, setDirection] = useState<"next" | "prev">("next");
+  const [transitioning, setTransitioning] = useState(false);
+  const [animationProgress, setAnimationProgress] = useState(1); // 0..1
+  const animFrameRef = useRef<number | null>(null);
+  const animStartRef = useRef<number | null>(null);
+
   const [isMobile, setIsMobile] = useState(false);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Show the climax card after the last photo
+  const [showClimax, setShowClimax] = useState(false);
+
+  const totalPhotos = SENIOR_PHOTOS.length;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Persistent refs for smooth inertia tracking that never reset across re-renders
-  const targetIndexRef = useRef(0);
-  const smoothedIndexRef = useRef(0);
-
-  const totalPhotos = SENIOR_PHOTOS.length;
-
   // Responsive & prefers-reduced-motion detection
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
 
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setIsReducedMotion(mediaQuery.matches);
-    const handleMotion = (e: MediaQueryListEvent) =>
-      setIsReducedMotion(e.matches);
+    const handleMotion = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handleMotion);
 
     return () => {
@@ -73,245 +74,235 @@ export function SeniorPhotoCollageSection({
     };
   }, []);
 
-  // Smooth scroll tracking loop for 60fps continuous animation
-  useEffect(() => {
-    let animationFrameId: number;
+  // Animate transition progress 0 → 1 over TRANSITION_DURATION_MS
+  const startTransitionAnimation = useCallback(() => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    animStartRef.current = null;
 
-    const onScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const containerTop = window.scrollY + rect.top;
-      const currentScroll = window.scrollY - containerTop;
+    const duration = isReducedMotion ? 0 : TRANSITION_DURATION_MS;
 
-      // Compute raw float index
-      const maxScrollUnits = totalPhotos - 1 + EXIT_BUFFER_PX / PHOTO_SCROLL_DISTANCE;
-      const raw = currentScroll / PHOTO_SCROLL_DISTANCE;
-      targetIndexRef.current = Math.max(0, Math.min(maxScrollUnits, raw));
-    };
+    const step = (timestamp: number) => {
+      if (!animStartRef.current) animStartRef.current = timestamp;
+      const elapsed = timestamp - animStartRef.current;
+      const progress = Math.min(1, elapsed / (duration || 1));
+      setAnimationProgress(progress);
 
-    // Inertial smoothing update
-    const updateLoop = () => {
-      if (isReducedMotion) {
-        smoothedIndexRef.current = targetIndexRef.current;
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
       } else {
-        // Smooth exponential dampening for silky inertial response
-        const delta = targetIndexRef.current - smoothedIndexRef.current;
-        smoothedIndexRef.current += delta * 0.22;
+        // Transition complete — clear prevIdx
+        setPrevIdx(null);
+        setTransitioning(false);
+        setAnimationProgress(1);
       }
-
-      // Only trigger React state update if difference is perceptible
-      setFloatIndex((prev) => {
-        if (Math.abs(prev - smoothedIndexRef.current) < 0.001) {
-          return prev;
-        }
-        return smoothedIndexRef.current;
-      });
-
-      animationFrameId = requestAnimationFrame(updateLoop);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    // Initialize immediately to current scroll position
-    smoothedIndexRef.current = targetIndexRef.current;
-    setFloatIndex(targetIndexRef.current);
-    animationFrameId = requestAnimationFrame(updateLoop);
+    setAnimationProgress(0);
+    animFrameRef.current = requestAnimationFrame(step);
+  }, [isReducedMotion]);
 
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [totalPhotos, isReducedMotion]);
+  // Navigate to a specific index
+  const goTo = useCallback((newIdx: number, dir: "next" | "prev") => {
+    if (transitioning) return;
+    setTransitioning(true);
+    setDirection(dir);
+    setPrevIdx(activeIdx);
+    setActiveIdx(newIdx);
+    startTransitionAnimation();
+  }, [activeIdx, transitioning, startTransitionAnimation]);
 
-  // Current active photo index
-  const activeIdx = Math.min(
-    totalPhotos - 1,
-    Math.max(0, Math.floor(floatIndex))
-  );
-
-  // Climax state when scrolling past the last photo
-  const isPastLastPhoto = floatIndex >= totalPhotos - 1;
-  const exitProgress = isPastLastPhoto
-    ? Math.min(
-        1,
-        (floatIndex - (totalPhotos - 1)) /
-          (EXIT_BUFFER_PX / PHOTO_SCROLL_DISTANCE)
-      )
-    : 0;
-
-  // Climax tribute transforms
-  const climaxCardOpacity = Math.min(1, Math.max(0, (exitProgress - 0.2) / 0.45));
-  const climaxCardScale = 0.94 + 0.06 * climaxCardOpacity;
-  const climaxCardY = (1 - climaxCardOpacity) * 30;
-
-  // Virtualized indices: only render active card and immediate neighbors
-  const visibleIndices = useMemo(() => {
-    const list: number[] = [];
-    const start = Math.max(0, activeIdx - 1);
-    const end = Math.min(totalPhotos - 1, activeIdx + 1);
-    for (let i = start; i <= end; i++) {
-      list.push(i);
-    }
-    return list;
-  }, [activeIdx, totalPhotos]);
-
-  // Preload indices: pre-decode adjacent images
-  const preloadIndices = useMemo(() => {
-    const list: number[] = [];
-    if (activeIdx + 2 < totalPhotos) list.push(activeIdx + 2);
-    if (activeIdx - 2 >= 0) list.push(activeIdx - 2);
-    return list;
-  }, [activeIdx, totalPhotos]);
-
-  // Navigation handlers
-  const scrollToPhoto = useCallback(
-    (index: number) => {
-      if (!containerRef.current) return;
-      const targetY =
-        containerRef.current.offsetTop + index * PHOTO_SCROLL_DISTANCE;
-      window.scrollTo({ top: targetY, behavior: "smooth" });
-    },
-    []
-  );
-
-  const scrollNext = useCallback(() => {
+  const goNext = useCallback(() => {
     if (activeIdx < totalPhotos - 1) {
-      scrollToPhoto(activeIdx + 1);
+      goTo(activeIdx + 1, "next");
     } else {
-      // Scroll to final farewell section
-      const el = document.getElementById("final-farewell");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      // Show climax card
+      setShowClimax(true);
     }
-  }, [activeIdx, totalPhotos, scrollToPhoto]);
+  }, [activeIdx, totalPhotos, goTo]);
 
-  const scrollPrev = useCallback(() => {
+  const goPrev = useCallback(() => {
+    if (showClimax) {
+      setShowClimax(false);
+      return;
+    }
     if (activeIdx > 0) {
-      scrollToPhoto(activeIdx - 1);
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      goTo(activeIdx - 1, "prev");
     }
-  }, [activeIdx, scrollToPhoto]);
+  }, [activeIdx, showClimax, goTo]);
 
-  // Keyboard navigation within the section
+  // Auto-advance timer
+  const resetAutoTimer = useCallback(() => {
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
+    if (!showClimax) {
+      autoTimerRef.current = setTimeout(() => {
+        goNext();
+      }, AUTO_ADVANCE_MS);
+    }
+  }, [goNext, showClimax]);
+
+  useEffect(() => {
+    resetAutoTimer();
+    return () => {
+      if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
+    };
+  }, [activeIdx, showClimax, resetAutoTimer]);
+
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const inSection =
-        rect.top <= 100 && rect.bottom >= window.innerHeight - 100;
-      if (!inSection) return;
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!inView) return;
 
-      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
-        scrollNext();
-      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        goNext();
+        resetAutoTimer();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault();
-        scrollPrev();
+        goPrev();
+        resetAutoTimer();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [scrollNext, scrollPrev]);
+  }, [goNext, goPrev, resetAutoTimer]);
 
-  // Total calculated height of the runway
-  const totalRunwayHeightPx =
-    (totalPhotos - 1) * PHOTO_SCROLL_DISTANCE + EXIT_BUFFER_PX;
+  // Touch swipe support
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(deltaX) < 50) return; // Too small — ignore
+    if (deltaX < 0) {
+      goNext();
+    } else {
+      goPrev();
+    }
+    resetAutoTimer();
+  }, [goNext, goPrev, resetAutoTimer]);
+
+  // Preload adjacent photos
+  const preloadIndices = useMemo(() => {
+    const list: number[] = [];
+    if (activeIdx + 1 < totalPhotos) list.push(activeIdx + 1);
+    if (activeIdx + 2 < totalPhotos) list.push(activeIdx + 2);
+    if (activeIdx - 1 >= 0) list.push(activeIdx - 1);
+    return list;
+  }, [activeIdx, totalPhotos]);
 
   // Progress percentage (0 to 100%)
-  const progressPercent = Math.min(
-    100,
-    Math.max(0, (floatIndex / (totalPhotos - 1)) * 100)
-  );
+  const progressPercent = Math.min(100, Math.max(0, ((activeIdx) / (totalPhotos - 1)) * 100));
+
+  const activePhoto = SENIOR_PHOTOS[activeIdx];
+  const prevPhoto = prevIdx !== null ? SENIOR_PHOTOS[prevIdx] : null;
 
   return (
     <section
       id={id}
       ref={containerRef}
-      style={{ height: `${totalRunwayHeightPx}px` }}
-      className="relative w-full bg-[#02040a] text-white select-none"
+      className="relative w-full h-[100dvh] bg-[#02040a] text-white select-none overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      {/* Pinned 100dvh Fullscreen Viewport Stage */}
-      <div className="sticky top-0 h-[100dvh] w-full overflow-hidden flex flex-col items-center justify-center">
-        {/* Cinematic Ambient Glow & Vignette */}
-        <div className="pointer-events-none absolute inset-0 z-0">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 h-[60vh] w-[90vw] max-w-[900px] rounded-full bg-gradient-to-tr from-amber-500/10 via-yellow-400/5 to-purple-700/10 blur-[140px]" />
-          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-[45vh] w-[90vw] max-w-[800px] rounded-full bg-gradient-to-t from-indigo-950/25 via-blue-950/15 to-transparent blur-[120px]" />
+      {/* Cinematic Ambient Glow & Vignette */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 h-[60vh] w-[90vw] max-w-[900px] rounded-full bg-gradient-to-tr from-amber-500/10 via-yellow-400/5 to-purple-700/10 blur-[140px]" />
+        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-[45vh] w-[90vw] max-w-[800px] rounded-full bg-gradient-to-t from-indigo-950/25 via-blue-950/15 to-transparent blur-[120px]" />
+      </div>
+
+      {/* Top Header: Progress Indicator */}
+      <div className="absolute top-0 inset-x-0 z-40 px-4 py-3 sm:py-5 flex flex-col items-center pointer-events-none">
+        {/* Gold progress bar */}
+        <div className="w-full max-w-xs sm:max-w-md h-1 rounded-full bg-white/10 overflow-hidden mb-2.5">
+          <div
+            suppressHydrationWarning
+            style={{
+              width: `${isMounted ? progressPercent : 0}%`,
+              transition: "width 500ms ease",
+            }}
+            className="h-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 shadow-[0_0_12px_rgba(251,191,36,0.6)]"
+          />
         </div>
 
-        {/* Top Header: Cinematic Progress Indicator */}
-        <div className="absolute top-0 inset-x-0 z-40 px-4 py-3 sm:py-5 flex flex-col items-center pointer-events-none">
-          {/* Subtle gold progress bar at top */}
-          <div className="w-full max-w-xs sm:max-w-md h-1 rounded-full bg-white/10 overflow-hidden mb-2.5">
-            <div
-              suppressHydrationWarning
-              style={{ width: `${isMounted ? progressPercent : 0}%` }}
-              className="h-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 shadow-[0_0_12px_rgba(251,191,36,0.6)]"
-            />
-          </div>
-
-          {/* Cinematic Counter Pill: MEMORIES 03 / 124 */}
-          <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-[#080d1a]/85 border border-amber-400/25 backdrop-blur-xl shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
-            <div className="flex items-center gap-1.5 text-amber-300">
-              <Camera className="w-3.5 h-3.5" />
-              <span className="text-[10px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-amber-200">
-                MEMORIES
-              </span>
-            </div>
-            <span className="w-1 h-1 rounded-full bg-amber-400/50" />
-            <span
-              suppressHydrationWarning
-              className="font-mono text-xs sm:text-sm font-bold text-white tracking-widest"
-            >
-              {String(Math.min(totalPhotos, (isMounted ? activeIdx : 0) + 1)).padStart(2, "0")}{" "}
-              <span className="text-white/40 font-normal">/ {totalPhotos}</span>
+        {/* Counter Pill */}
+        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-[#080d1a]/85 border border-amber-400/25 backdrop-blur-xl shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
+          <div className="flex items-center gap-1.5 text-amber-300">
+            <Camera className="w-3.5 h-3.5" />
+            <span className="text-[10px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-amber-200">
+              MEMORIES
             </span>
           </div>
-        </div>
-
-        {/* The Carousel Canvas: Focused Active Cards */}
-        <div className="relative z-20 w-full h-full flex items-center justify-center overflow-hidden">
-          {visibleIndices.map((index) => {
-            const photo = SENIOR_PHOTOS[index];
-            if (!photo) return null;
-
-            // diff = floatIndex - photoIndex
-            const diff = floatIndex - index;
-
-            return (
-              <CinematicCarouselCard
-                key={photo.id}
-                photo={photo}
-                photoIndex={index}
-                diff={diff}
-                holdRange={HOLD_RANGE}
-                isMobile={isMobile}
-                isReducedMotion={isReducedMotion}
-              />
-            );
-          })}
-        </div>
-
-        {/* Hidden Preloader Images for Smooth Image Caching */}
-        <div className="hidden" aria-hidden="true">
-          {preloadIndices.map((idx) => {
-            const photo = SENIOR_PHOTOS[idx];
-            if (!photo) return null;
-            return <img key={`preload-${photo.id}`} src={photo.src} alt="" />;
-          })}
-        </div>
-
-        {/* Climax Reveal: Appears when user scrolls past all photos */}
-        {isPastLastPhoto && (
-          <div
-            style={{
-              opacity: climaxCardOpacity,
-              transform: `translateY(${climaxCardY}px) scale(${climaxCardScale})`,
-              pointerEvents: climaxCardOpacity > 0.5 ? "auto" : "none",
-            }}
-            className="absolute z-50 flex flex-col items-center justify-center text-center px-4 max-w-xl mx-auto transition-opacity duration-200"
+          <span className="w-1 h-1 rounded-full bg-amber-400/50" />
+          <span
+            suppressHydrationWarning
+            className="font-mono text-xs sm:text-sm font-bold text-white tracking-widest"
           >
-            <div className="relative rounded-2xl sm:rounded-3xl border border-amber-400/30 bg-gradient-to-b from-[#060a17]/95 via-[#030611]/98 to-[#010206] p-6 sm:p-9 backdrop-blur-2xl shadow-[0_25px_70px_rgba(0,0,0,0.95),0_0_40px_rgba(245,158,11,0.25)]">
+            {String(isMounted ? activeIdx + 1 : 1).padStart(2, "0")}{" "}
+            <span className="text-white/40 font-normal">/ {totalPhotos}</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Carousel Canvas */}
+      <div className="relative z-20 w-full h-full flex items-center justify-center overflow-hidden">
+        {/* Previous card (exiting) */}
+        {prevPhoto && (
+          <CinematicCarouselCard
+            key={`prev-${prevIdx}`}
+            photo={prevPhoto}
+            photoIndex={prevIdx!}
+            enterProgress={1}
+            exitProgress={animationProgress}
+            direction={direction}
+            isMobile={isMobile}
+            isReducedMotion={isReducedMotion}
+            isActive={false}
+          />
+        )}
+
+        {/* Active card (entering → settled) */}
+        {activePhoto && !showClimax && (
+          <CinematicCarouselCard
+            key={`active-${activeIdx}`}
+            photo={activePhoto}
+            photoIndex={activeIdx}
+            enterProgress={transitioning ? animationProgress : 1}
+            exitProgress={0}
+            direction={direction}
+            isMobile={isMobile}
+            isReducedMotion={isReducedMotion}
+            isActive={!transitioning || animationProgress >= 1}
+          />
+        )}
+      </div>
+
+      {/* Hidden Preloader */}
+      <div className="hidden" aria-hidden="true">
+        {preloadIndices.map((idx) => {
+          const photo = SENIOR_PHOTOS[idx];
+          if (!photo) return null;
+          return <img key={`preload-${photo.id}`} src={photo.src} alt="" />;
+        })}
+      </div>
+
+      {/* Climax Reveal: After all photos */}
+      <AnimatePresence>
+        {showClimax && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: -20 }}
+            transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center text-center px-4"
+          >
+            <div className="relative rounded-2xl sm:rounded-3xl border border-amber-400/30 bg-gradient-to-b from-[#060a17]/95 via-[#030611]/98 to-[#010206] p-6 sm:p-9 backdrop-blur-2xl shadow-[0_25px_70px_rgba(0,0,0,0.95),0_0_40px_rgba(245,158,11,0.25)] max-w-xl mx-auto">
               {/* Top rim sheen */}
               <div className="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
 
@@ -320,12 +311,12 @@ export function SeniorPhotoCollageSection({
                 <span>Memories Preserved • Legacy Eternal</span>
               </div>
 
-              {/* Requirement: "The memories stay forever." */}
+              {/* "The memories stay forever." */}
               <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-light italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-yellow-200 to-amber-100 drop-shadow-[0_2px_15px_rgba(253,224,71,0.3)]">
                 &ldquo;The memories stay forever.&rdquo;
               </h2>
 
-              {/* Requirement: "Farewell Seniors ❤️" */}
+              {/* "Farewell Seniors ❤️" */}
               <div className="mt-3 sm:mt-4 flex items-center justify-center gap-2 sm:gap-3">
                 <h3 className="font-serif text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-[#FFFDF0] via-[#F6D268] to-[#B37E19] drop-shadow-[0_4px_25px_rgba(234,179,8,0.5)]">
                   Farewell Seniors
@@ -366,52 +357,83 @@ export function SeniorPhotoCollageSection({
                 <button
                   type="button"
                   onClick={() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    setShowClimax(false);
+                    goTo(0, "prev");
                   }}
                   className="inline-flex items-center gap-1.5 px-5 py-3 rounded-full text-xs sm:text-sm font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white backdrop-blur-md active:scale-95 transition-all cursor-pointer"
                 >
                   <ChevronUp className="w-3.5 h-3.5" />
-                  <span>Back to Opening</span>
+                  <span>Revisit Memories</span>
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* Floating Subtle Navigation & Scroll Cue at Bottom */}
-        <div className="absolute bottom-4 sm:bottom-6 inset-x-0 z-40 flex items-center justify-between px-4 sm:px-8 pointer-events-none">
+      {/* Navigation & Slide Dots */}
+      {!showClimax && (
+        <div className="absolute bottom-4 sm:bottom-6 inset-x-0 z-40 flex items-center justify-between px-4 sm:px-8">
           {/* Previous Button */}
           <button
             type="button"
-            onClick={scrollPrev}
+            id="gallery-prev-btn"
+            onClick={() => {
+              goPrev();
+              resetAutoTimer();
+            }}
             disabled={activeIdx === 0}
             aria-label="Previous photo"
-            className={`pointer-events-auto p-2.5 sm:p-3 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:border-amber-400/40 hover:bg-white/10 backdrop-blur-md transition-all active:scale-90 cursor-pointer ${
+            className={`p-2.5 sm:p-3 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:border-amber-400/40 hover:bg-white/10 backdrop-blur-md transition-all active:scale-90 cursor-pointer ${
               activeIdx === 0 ? "opacity-30 pointer-events-none" : "opacity-80"
             }`}
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
           </button>
 
-          {/* Gentle Scroll Hint */}
-          <div className="flex flex-col items-center text-center">
-            <span className="text-[10px] sm:text-xs tracking-widest uppercase text-slate-400/70 font-sans">
-              Scroll slowly to experience memories
-            </span>
-            <ChevronDown className="w-3.5 h-3.5 text-amber-300/60 animate-bounce mt-0.5" />
+          {/* Dot Indicators */}
+          <div className="flex items-center gap-1.5 flex-wrap justify-center max-w-[50vw]">
+            {Array.from({ length: Math.min(totalPhotos, 20) }).map((_, i) => {
+              // Group photos into 20 dots max
+              const groupSize = Math.ceil(totalPhotos / 20);
+              const groupStart = i * groupSize;
+              const isActive = activeIdx >= groupStart && activeIdx < groupStart + groupSize;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Go to photo group ${i + 1}`}
+                  onClick={() => {
+                    const targetIdx = groupStart;
+                    const dir = targetIdx > activeIdx ? "next" : "prev";
+                    goTo(targetIdx, dir);
+                    resetAutoTimer();
+                  }}
+                  className={`rounded-full transition-all duration-300 cursor-pointer ${
+                    isActive
+                      ? "w-5 h-1.5 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.7)]"
+                      : "w-1.5 h-1.5 bg-white/25 hover:bg-white/50"
+                  }`}
+                />
+              );
+            })}
           </div>
 
           {/* Next Button */}
           <button
             type="button"
-            onClick={scrollNext}
+            id="gallery-next-btn"
+            onClick={() => {
+              goNext();
+              resetAutoTimer();
+            }}
             aria-label="Next photo"
-            className="pointer-events-auto p-2.5 sm:p-3 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:border-amber-400/40 hover:bg-white/10 backdrop-blur-md transition-all active:scale-90 cursor-pointer opacity-80 hover:opacity-100"
+            className="p-2.5 sm:p-3 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:border-amber-400/40 hover:bg-white/10 backdrop-blur-md transition-all active:scale-90 cursor-pointer opacity-80 hover:opacity-100"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
           </button>
         </div>
-      </div>
+      )}
     </section>
   );
 }
