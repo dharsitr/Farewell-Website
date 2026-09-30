@@ -1,23 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 
-const cinzel = Cinzel({
-  variable: "--font-cinzel",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800", "900"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -57,9 +52,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${playfair.variable} ${jakarta.variable} dark h-full antialiased`}
+      className={`${cormorant.variable} ${inter.variable} dark h-full antialiased font-sans`}
     >
-      <body className="min-h-full w-full bg-[#02040a] text-white select-none">
+      <body className="min-h-full w-full bg-[#02040a] text-white select-none font-sans">
         {children}
       </body>
     </html>

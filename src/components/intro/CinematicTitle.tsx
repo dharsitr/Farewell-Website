@@ -84,7 +84,7 @@ export function CinematicTitle({ state, isReducedMotion }: CinematicTitleProps) 
         <motion.h1
           className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tight leading-none text-transparent bg-clip-text drop-shadow-[0_4px_32px_rgba(245,158,11,0.55)] px-2"
           style={{
-            fontFamily: "var(--font-cinzel), var(--font-playfair), Georgia, serif",
+            fontFamily: "var(--font-cormorant), Georgia, serif",
             backgroundImage:
               "linear-gradient(135deg, #FFFDF0 0%, #FDE047 25%, #EAB308 50%, #CA8A04 75%, #FFFDF0 100%)",
             backgroundSize: "200% auto",

@@ -137,7 +137,7 @@ export function FinalFarewellSection({
           <h1
             className="font-serif text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-[#FFFDF0] via-[#F6D268] to-[#B37E19] drop-shadow-[0_4px_30px_rgba(234,179,8,0.55)]"
             style={{
-              fontFamily: "var(--font-cinzel), var(--font-playfair), Georgia, serif",
+              fontFamily: "var(--font-cormorant), Georgia, serif",
             }}
           >
             Farewell Seniors
