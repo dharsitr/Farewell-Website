@@ -196,6 +196,110 @@ export function FinalFarewellSection({
         </div>
       </motion.div>
 
+      {/* Venue Map Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+        className="relative z-20 w-full max-w-2xl mx-auto mt-14 sm:mt-20 px-2"
+      >
+        {/* Venue Card */}
+        <div className="relative rounded-2xl sm:rounded-3xl border border-amber-400/20 bg-gradient-to-b from-[#0c1020]/90 via-[#070b16]/95 to-[#03050c] backdrop-blur-2xl shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(245,158,11,0.08)] overflow-hidden">
+          {/* Top sheen */}
+          <div className="absolute inset-x-10 -top-px h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent pointer-events-none z-10" />
+
+          {/* Header */}
+          <div className="flex flex-col items-center text-center px-6 pt-6 sm:pt-8 pb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-300/25 text-[11px] sm:text-xs font-semibold tracking-[0.2em] uppercase text-amber-200 mb-3">
+              <span>📍</span>
+              <span>Venue</span>
+            </div>
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#FFFDF0] via-[#F6D268] to-[#C89A2A]">
+              JR Hall
+            </h3>
+            <p className="mt-1 text-xs sm:text-sm text-slate-400 tracking-wide">
+              Coimbatore, Tamil Nadu
+            </p>
+          </div>
+
+          {/* Map Embed */}
+          <div className="relative w-full h-56 sm:h-72 overflow-hidden">
+            {/* Gradient overlay on top/bottom edges */}
+            <div className="absolute top-0 inset-x-0 h-4 bg-gradient-to-b from-[#070b16]/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-[#03050c]/80 to-transparent z-10 pointer-events-none" />
+            <iframe
+              title="JR Hall Location Map"
+              src="https://maps.google.com/maps?q=11.0402477,77.0308503&z=17&output=embed&hl=en"
+              width="100%"
+              height="100%"
+              style={{ border: 0, filter: "invert(90%) hue-rotate(180deg) saturate(0.8) brightness(0.85)" }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-full"
+            />
+          </div>
+
+          {/* Footer: coords + directions button */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 sm:px-7 py-4 sm:py-5 border-t border-white/5">
+            <div className="text-center sm:text-left">
+              <p className="text-[10px] sm:text-xs text-slate-500 font-mono tracking-wider">
+                11.0402477° N, 77.0308503° E
+              </p>
+            </div>
+            <a
+              href="https://www.google.com/maps/place/JR+HALL/@11.0402477,77.0282754,17z"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-black cursor-pointer whitespace-nowrap overflow-hidden
+                bg-gradient-to-r from-[#FFD96A] via-[#F59E0B] to-[#D97706]
+                shadow-[0_0_28px_rgba(245,158,11,0.55),0_4px_20px_rgba(0,0,0,0.4)]
+                hover:shadow-[0_0_45px_rgba(251,191,36,0.75),0_6px_30px_rgba(0,0,0,0.5)]
+                hover:scale-105 active:scale-95 transition-all duration-300"
+              style={{ letterSpacing: "0.04em" }}
+            >
+              {/* Shimmer sweep */}
+              <span
+                className="pointer-events-none absolute inset-0 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-700 ease-in-out"
+                style={{
+                  background:
+                    "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%)",
+                }}
+              />
+              {/* Pulse ring */}
+              <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-amber-400 pointer-events-none" style={{ animationDuration: "2s" }} />
+
+              {/* Navigation arrow icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-4 h-4 flex-shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              >
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+              </svg>
+
+              <span className="relative z-10">Get Directions</span>
+
+              {/* Trailing chevron */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-3.5 h-3.5 flex-shrink-0 opacity-80 transition-transform duration-300 group-hover:translate-x-1"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Smooth Final Fade / Bottom Vignette to Black */}
       <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#02040a] via-[#02040a]/90 to-transparent pointer-events-none" />
 

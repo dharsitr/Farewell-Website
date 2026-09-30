@@ -53,25 +53,45 @@ export function TransitionStage({
 
         {/* Transition Action / Teaser Cue */}
         <div className="mt-5 sm:mt-6 flex flex-col items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setHasInteracted(true);
-              const target = document.getElementById("senior-memories");
-              if (target) {
-                target.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
-            className="group relative inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-full text-xs sm:text-sm font-semibold tracking-wide text-black bg-gradient-to-r from-[#FDE047] via-[#F59E0B] to-[#D97706] hover:brightness-110 active:scale-95 transition-all duration-300 shadow-[0_0_25px_rgba(245,158,11,0.35)] cursor-pointer"
-          >
-            <span>Relive The Memories</span>
-            <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {/* Relive The Memories */}
+            <button
+              type="button"
+              onClick={() => {
+                setHasInteracted(true);
+                const target = document.getElementById("senior-memories");
+                if (target) {
+                  target.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="group relative inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-full text-xs sm:text-sm font-semibold tracking-wide text-black bg-gradient-to-r from-[#FDE047] via-[#F59E0B] to-[#D97706] hover:brightness-110 active:scale-95 transition-all duration-300 shadow-[0_0_25px_rgba(245,158,11,0.35)] cursor-pointer"
+            >
+              <span>Relive The Memories</span>
+              <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
 
-            {/* Shimmer light over button */}
-            <span className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-            </span>
-          </button>
+              {/* Shimmer light over button */}
+              <span className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              </span>
+            </button>
+
+            {/* Venue Button */}
+            <button
+              type="button"
+              onClick={() => {
+                const target = document.getElementById("final-farewell");
+                if (target) target.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="group relative inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-xs sm:text-sm font-semibold tracking-wide text-amber-200 border border-amber-400/35 bg-white/[0.06] hover:bg-amber-400/10 hover:border-amber-400/70 hover:text-amber-100 backdrop-blur-md active:scale-95 transition-all duration-300 shadow-[0_0_18px_rgba(245,158,11,0.12)] hover:shadow-[0_0_28px_rgba(245,158,11,0.28)] cursor-pointer overflow-hidden"
+            >
+              {/* Shimmer */}
+              <span className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              </span>
+              <span className="text-base leading-none">📍</span>
+              <span className="relative z-10">Venue</span>
+            </button>
+          </div>
 
           {/* Interactive note after tap */}
           {hasInteracted && (

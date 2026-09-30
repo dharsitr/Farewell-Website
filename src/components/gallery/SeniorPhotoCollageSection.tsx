@@ -25,6 +25,9 @@ import {
 const AUTO_ADVANCE_MS = 3000; // Auto-advance delay in ms
 const TRANSITION_DURATION_MS = 420; // Animation duration in ms
 
+// Limit the slideshow to 20 photos
+const PHOTOS = SENIOR_PHOTOS.slice(0, 20);
+
 interface SeniorPhotoCollageSectionProps {
   id?: string;
 }
@@ -51,7 +54,7 @@ export function SeniorPhotoCollageSection({
   // Show the climax card after the last photo
   const [showClimax, setShowClimax] = useState(false);
 
-  const totalPhotos = SENIOR_PHOTOS.length;
+  const totalPhotos = PHOTOS.length;
 
   useEffect(() => {
     setIsMounted(true);
@@ -200,8 +203,8 @@ export function SeniorPhotoCollageSection({
   // Progress percentage (0 to 100%)
   const progressPercent = Math.min(100, Math.max(0, ((activeIdx) / (totalPhotos - 1)) * 100));
 
-  const activePhoto = SENIOR_PHOTOS[activeIdx];
-  const prevPhoto = prevIdx !== null ? SENIOR_PHOTOS[prevIdx] : null;
+  const activePhoto = PHOTOS[activeIdx];
+  const prevPhoto = prevIdx !== null ? PHOTOS[prevIdx] : null;
 
   return (
     <section
@@ -286,7 +289,7 @@ export function SeniorPhotoCollageSection({
       {/* Hidden Preloader */}
       <div className="hidden" aria-hidden="true">
         {preloadIndices.map((idx) => {
-          const photo = SENIOR_PHOTOS[idx];
+          const photo = PHOTOS[idx];
           if (!photo) return null;
           return <img key={`preload-${photo.id}`} src={photo.src} alt="" />;
         })}
