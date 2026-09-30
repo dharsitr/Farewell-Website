@@ -43,7 +43,7 @@ export function TransitionStage({
 
         {/* Badge */}
         <div className="inline-flex items-center px-3 py-1 rounded-full bg-amber-400/10 border border-amber-300/25 text-[11px] sm:text-xs font-medium tracking-wider uppercase text-amber-200/90 mb-3 sm:mb-4">
-          <span>Class of 2026 • The Legacy</span>
+          <span>Class of 2022-2027 • The Legacy</span>
         </div>
 
         {/* Emotion / Tribute Text */}

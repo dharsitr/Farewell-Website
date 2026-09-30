@@ -162,7 +162,7 @@ export function FinalFarewellSection({
         <div className="mt-4 sm:mt-5 flex items-center justify-center gap-3 sm:gap-4 w-full">
           <span className="h-[1px] w-10 sm:w-20 bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
           <span className="font-sans text-xs sm:text-sm md:text-base font-semibold tracking-[0.3em] uppercase text-amber-200/90 drop-shadow-[0_2px_8px_rgba(251,191,36,0.3)]">
-            Batch of 2026
+            Batch of 2022-2027
           </span>
           <span className="h-[1px] w-10 sm:w-20 bg-gradient-to-l from-transparent via-amber-400/60 to-transparent" />
         </div>
