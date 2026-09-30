@@ -21,28 +21,28 @@ export function FinalFarewellSection({
     {
       photo: SENIOR_PHOTOS[0], // photo-1
       className:
-        "top-10 left-4 sm:top-16 sm:left-12 lg:left-24 -rotate-6 w-28 h-36 sm:w-36 sm:h-48 md:w-44 md:h-56",
+        "top-16 left-4 md:left-8 lg:left-16 xl:left-24 -rotate-6 w-36 h-48 md:w-40 md:h-52 lg:w-44 lg:h-56 hidden md:block",
       floatRange: [-8, 8],
       duration: 6,
     },
     {
       photo: SENIOR_PHOTOS[1], // photo-2
       className:
-        "top-12 right-4 sm:top-20 sm:right-12 lg:right-24 rotate-8 w-28 h-36 sm:w-36 sm:h-48 md:w-44 md:h-56",
+        "top-20 right-4 md:right-8 lg:right-16 xl:right-24 rotate-8 w-36 h-48 md:w-40 md:h-52 lg:w-44 lg:h-56 hidden md:block",
       floatRange: [6, -8],
       duration: 7,
     },
     {
       photo: SENIOR_PHOTOS[4], // photo-5
       className:
-        "bottom-28 left-4 sm:bottom-24 sm:left-16 lg:left-28 rotate-6 w-28 h-36 sm:w-36 sm:h-48 md:w-44 md:h-56 hidden sm:block",
+        "bottom-28 left-4 md:left-8 lg:left-16 xl:left-24 rotate-6 w-36 h-48 md:w-40 md:h-52 lg:w-44 lg:h-56 hidden lg:block",
       floatRange: [-10, 6],
       duration: 6.5,
     },
     {
       photo: SENIOR_PHOTOS[5], // photo-6
       className:
-        "bottom-24 right-4 sm:bottom-20 sm:right-16 lg:right-28 -rotate-8 w-28 h-36 sm:w-36 sm:h-48 md:w-44 md:h-56 hidden sm:block",
+        "bottom-24 right-4 md:right-8 lg:right-16 xl:right-24 -rotate-8 w-36 h-48 md:w-40 md:h-52 lg:w-44 lg:h-56 hidden lg:block",
       floatRange: [8, -10],
       duration: 7.5,
     },
@@ -51,7 +51,7 @@ export function FinalFarewellSection({
   return (
     <section
       id={id}
-      className="relative min-h-screen w-full bg-[#02040a] text-white flex flex-col items-center justify-center pt-24 sm:pt-32 pb-36 sm:pb-36 px-4 overflow-hidden select-none"
+      className="relative min-h-screen w-full bg-[#02040a] text-white flex flex-col items-center justify-center pt-16 sm:pt-28 pb-32 sm:pb-36 px-4 overflow-hidden select-none"
     >
       {/* Cinematic Ambient Glow & Vignette */}
       <div className="pointer-events-none absolute inset-0 z-0">
@@ -65,7 +65,7 @@ export function FinalFarewellSection({
         <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-[85vw] max-w-[800px] h-[350px] rounded-full bg-indigo-950/20 blur-[130px]" />
       </div>
 
-      {/* Floating Selected Senior Photos around the message */}
+      {/* Floating Selected Senior Photos around the message (hidden on mobile to prevent clutter) */}
       <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
         {floatingPhotos.map((item, index) => (
           <motion.div
@@ -117,7 +117,7 @@ export function FinalFarewellSection({
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="inline-flex items-center px-4 py-1.5 rounded-full bg-amber-400/10 border border-amber-300/30 backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.15)] mb-6 sm:mb-8"
+          className="inline-flex items-center px-4 py-1.5 rounded-full bg-amber-400/10 border border-amber-300/30 backdrop-blur-md shadow-[0_0_20px_rgba(245,158,11,0.2)] mb-5 sm:mb-8"
         >
           <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-amber-200">
             A Farewell Tribute
@@ -126,16 +126,16 @@ export function FinalFarewellSection({
 
         {/* Requirement 2: Line 1 */}
         {/* "Some chapters end, but the memories never do." */}
-        <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-light italic leading-snug tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-yellow-200 to-amber-100 drop-shadow-[0_2px_15px_rgba(253,224,71,0.25)]">
+        <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-light italic leading-snug tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-yellow-200 to-amber-100 drop-shadow-[0_2px_15px_rgba(253,224,71,0.25)] max-w-xl mx-auto px-2">
           &ldquo;Some chapters end,<br />
           but the memories never do.&rdquo;
         </h2>
 
         {/* Requirement 2: Line 2 */}
         {/* "Farewell Seniors ❤️" */}
-        <div className="mt-5 sm:mt-7 flex items-center justify-center gap-2.5 sm:gap-4 flex-wrap">
+        <div className="mt-5 sm:mt-7 flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
           <h1
-            className="font-serif text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-[#FFFDF0] via-[#F6D268] to-[#B37E19] drop-shadow-[0_4px_30px_rgba(234,179,8,0.55)]"
+            className="font-serif text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-[#FFFDF0] via-[#F6D268] to-[#B37E19] drop-shadow-[0_4px_30px_rgba(234,179,8,0.55)]"
             style={{
               fontFamily: "var(--font-cormorant), Georgia, serif",
             }}
@@ -334,6 +334,16 @@ export function FinalFarewellSection({
         <p className="text-[11px] sm:text-xs tracking-widest uppercase text-slate-500">
           Created with Love for the Seniors • College Farewell 2026
         </p>
+      </div>
+
+      {/* Right Corner Credit */}
+      <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-8 z-30 pointer-events-auto">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-amber-400/25 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.6)] text-slate-400 hover:text-amber-200 hover:border-amber-400/50 transition-all duration-300">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <span className="text-[10px] sm:text-xs tracking-wider font-medium text-slate-300">
+            Done by <span className="text-amber-300 font-semibold tracking-wide">Dharsit R</span>
+          </span>
+        </div>
       </div>
     </section>
   );
